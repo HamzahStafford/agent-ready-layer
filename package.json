@@ -1,0 +1,21 @@
+{
+  "name": "parse_web",
+  "version": "1.0.0",
+  "description": "Agent Web Contract Generator: HTML → DOM → semantic analysis → API contract",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "fetch": "node src/cli.js fetch",
+    "contract": "node src/cli.js contract",
+    "start": "node src/cli.js",
+    "mcp": "node src/mcp-server.js",
+    "agent": "node src/agent.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@openrouter/sdk": "^0.8.0",
+    "cheerio": "^1.0.0",
+    "dotenv": "^17.3.1",
+    "playwright": "^1.49.0"
+  }
+}

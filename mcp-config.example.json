@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "web-scraper": {
+      "command": "node",
+      "args": ["/ABSOLUTE_PATH_TO_PROJECT/parse_web/src/mcp-server.js"],
+      "cwd": "/ABSOLUTE_PATH_TO_PROJECT/parse_web",
+      "env": {}
+    }
+  }
+}
