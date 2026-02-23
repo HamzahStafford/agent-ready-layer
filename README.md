@@ -1,5 +1,7 @@
 # Agent-Ready Layer — Semantic Interface for Web
 
+![Agent-Ready Demo](https://github.com/HamzahStafford/agent-ready-layer/raw/main/demo-first-phase.gif)
+
 **Tagline:** *"Computer-use is powerful but inefficient. A semantic acceleration layer reduces cost, latency, and hallucinated clicks."*
 
 Actionable API layer for AI agents: parse HTML/DOM → semantic analysis → **action contract** (named actions + schemas). Agents call actions by name and parameters instead of screenshot–reason–click loops.
