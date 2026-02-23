@@ -1,0 +1,13 @@
+{
+  "version": "1.2.0",
+  "date": "2025-02-23",
+  "changes": [
+    "API discovery: capture XHR/fetch during page load (Playwright requestfinished)",
+    "contract.apiEndpoints: real URLs + method + bodySchema for direct API calls",
+    "urlToContract(..., discoverApis: true) and CLI --discover-apis",
+    "MCP tool web_scraper_call_api(method, url, body, headers) to call site APIs",
+    "Agent prompt updated: discover_apis + use web_scraper_call_api for flow",
+    "Browser agent: browserSession.js + MCP browser_launch/navigate/click/fill/fill_form/snapshot/close",
+    "Agent can open real browser (headed), navigate, snapshot, click, fill like a human"
+  ]
+}

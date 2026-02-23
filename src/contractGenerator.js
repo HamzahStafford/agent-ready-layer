@@ -43,16 +43,40 @@ function buildSchemaFromInputs(inputs) {
 }
 
 /**
+ * Generate action name from discovered API URL (path + method).
+ * @param {{ method: string, url: string }} api
+ * @param {Set<string>} used
+ */
+function apiActionName(api, used) {
+  try {
+    const u = new URL(api.url);
+    const path = u.pathname.replace(/\/$/, '') || 'root';
+    const base = path.split('/').filter(Boolean).slice(-2).join('_') || 'api';
+    const slug = `${api.method.toLowerCase()}_${base}`.replace(/[^a-z0-9_]/g, '_');
+    let name = slug;
+    let n = 2;
+    while (used.has(name)) name = slug + '_' + n++;
+    used.add(name);
+    return name;
+  } catch {
+    const name = `api_${used.size + 1}`;
+    used.add(name);
+    return name;
+  }
+}
+
+/**
  * Generate full API contract from HTML.
  * @param {string} html - Full HTML string
- * @param {{ context?: string, selectorsHint?: Record<string, string> }} options
- * @returns {Object} API contract (contractName, actions)
+ * @param {{ context?: string, discoveredApis?: Array<Object> }} options
+ * @returns {Object} API contract (contractName, actions, apiEndpoints)
  */
 export function generateContract(html, options = {}) {
   const $ = parseDOM(html);
   const { forms, buttons, links } = extractInteractiveGroups($);
   const contractName = inferContractName($, options.context);
   const actions = [];
+  const usedActions = new Set();
 
   // Forms → POST/GET actions
   forms.forEach((form, idx) => {
@@ -76,7 +100,7 @@ export function generateContract(html, options = {}) {
     used.add(name);
     return name;
   }
-  const usedActions = new Set(actions.map((a) => a.action));
+  actions.forEach((a) => usedActions.add(a.action));
 
   const formActionNames = new Set(forms.map((f) => (f.submitLabel ? slug(f.submitLabel) : '')).filter(Boolean));
   buttons.forEach((btn, idx) => {
@@ -105,8 +129,21 @@ export function generateContract(html, options = {}) {
     });
   });
 
-  return {
-    contractName,
-    actions,
-  };
+  const apiEndpoints = [];
+  if (options.discoveredApis && options.discoveredApis.length > 0) {
+    for (const api of options.discoveredApis) {
+      const actionName = apiActionName(api, usedActions);
+      apiEndpoints.push({
+        action: actionName,
+        method: api.method,
+        url: api.url,
+        bodySchema: api.bodySchema,
+        description: `Real API: ${api.method} ${api.url}`,
+      });
+    }
+  }
+
+  const out = { contractName, actions };
+  if (apiEndpoints.length) out.apiEndpoints = apiEndpoints;
+  return out;
 }

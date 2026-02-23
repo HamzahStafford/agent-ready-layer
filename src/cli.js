@@ -17,6 +17,7 @@ const contextArg = process.argv.find((a) => a.startsWith('--context='));
 const htmlPathArg = process.argv.find((a) => a.startsWith('--html='));
 const outputArg = process.argv.find((a) => a.startsWith('--output='));
 const useChromium = !process.argv.includes('--no-chromium');
+const discoverApis = process.argv.includes('--discover-apis');
 const context = contextArg ? contextArg.slice('--context='.length) : undefined;
 const htmlPath = htmlPathArg ? htmlPathArg.slice('--html='.length) : undefined;
 const outputPath = outputArg ? outputArg.slice('--output='.length) : undefined;
@@ -49,12 +50,12 @@ async function main() {
   if (!url || url.startsWith('--')) {
     console.error(`
 Usage:
-  node src/cli.js <url> [--context=name] [--output=contract.json]
+  node src/cli.js <url> [--context=name] [--discover-apis] [--output=contract.json]
   node src/cli.js --html=./page.html [--context=name] [--output=contract.json]
   node src/cli.js --mcp   (start MCP web-scraper server, stdio)
 
 Examples:
-  node src/cli.js https://example.com --output=contract.json
+  node src/cli.js https://example.com [--discover-apis] --output=contract.json
   node src/cli.js --html=./saved.html --context=productPage --output=out.json
   npm run mcp   (same as node src/mcp-server.js)
 `);
@@ -62,7 +63,7 @@ Examples:
   }
 
   const { urlToContract } = await import('./index.js');
-  const { contract } = await urlToContract(url, { context, useChromium });
+  const { contract } = await urlToContract(url, { context, useChromium, discoverApis });
   writeContract(contract);
 }
 

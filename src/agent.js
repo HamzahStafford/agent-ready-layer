@@ -103,7 +103,9 @@ async function runAgentTurn(apiKey, mcpClient, toolsOpenAI, messages, model) {
     });
 
     if (!msg.tool_calls || msg.tool_calls.length === 0) {
-      return msg.content || '(No text output)';
+      const text = (msg.content && String(msg.content).trim()) || '';
+      if (text) return text;
+      return "I didn't get a final reply. Try asking again or give me a specific store URL (e.g. a trekking shop) so I can fetch its contract and suggest actions.";
     }
 
     for (const tc of msg.tool_calls) {
@@ -145,11 +147,30 @@ async function main() {
   const toolsOpenAI = mcpToolsToOpenAI(tools);
   console.error(`Loaded ${tools.length} MCP tools: ${tools.map((t) => t.name).join(', ')}`);
 
-  const systemPrompt = `You are an assistant with access to web scraping tools (MCP web-scraper). When the user asks to fetch a page, get a contract from a URL, or analyze HTML, use the appropriate tool:
-- web_scraper_fetch_contract: fetch a URL and get the API contract (actions, forms, links). Use when you need to discover what a page offers.
-- web_scraper_contract_from_html: generate contract from raw HTML string.
-- web_scraper_fetch_html: fetch raw HTML from a URL.
-Use these tools when needed, then summarize or act on the results for the user.`;
+  const systemPrompt = `You are an assistant that can both discover web pages (contract) and act in a real browser like a human.
+
+Discovery (no browser):
+- web_scraper_fetch_contract: get API contract (actions, forms, links) for a URL. Use discover_apis: true to also get apiEndpoints.
+- web_scraper_contract_from_html, web_scraper_fetch_html: when you already have HTML or need raw HTML.
+
+Execute in a real browser (human-like):
+- browser_launch: open a browser (use headed: true so the user can watch). Do this first.
+- browser_navigate: go to a URL.
+- browser_snapshot: get current page state (buttons, links, forms). Use this to decide what to click or fill.
+- browser_click: click by visible text (e.g. "Search", "Add to cart") or selector.
+- browser_fill: fill one field by label/name (e.g. "search", "Size").
+- browser_fill_form: fill multiple fields via JSON (e.g. '{"search":"trekking shoes","size":"40"}').
+- browser_close: close the browser when done.
+
+Recommended flow for shopping/product tasks (e.g. "trekking shoes, $100, black, size 40"):
+1. browser_launch(headed: true) so the user sees the browser.
+2. browser_navigate to a relevant shop URL (e.g. Nike, Decathlon, or a trekking store).
+3. browser_snapshot to see current buttons/links/forms.
+4. Use browser_fill or browser_fill_form to enter search/filters (e.g. search="trekking shoes", size=40), then browser_click("Search") or the submit button text.
+5. browser_snapshot again to see results; optionally click a product or summarize what you see.
+6. Always end with a clear text reply to the user. Then browser_close when the flow is done.
+
+You can also use web_scraper_fetch_contract to get the contract first (to know what actions exist), then use the browser_* tools to perform those actions in the real page. Never end with only tool calls and no message.`;
 
   if (userInput) {
     const messages = [
