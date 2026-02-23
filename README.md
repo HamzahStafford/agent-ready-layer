@@ -1,5 +1,6 @@
 # Agent-Ready Layer — Semantic Interface for Web
-![Agent-Ready Demo](https://github.com/HamzahStafford/agent-ready-layer/raw/main/demo-first-phase.gif)
+<video src="https://github.com/HamzahStafford/agent-ready-layer/raw/main/demo-first-phase.mov" width="100%" controls>
+</video>
 
 **Tagline:** *"Computer-use is powerful but inefficient. A semantic acceleration layer reduces cost, latency, and hallucinated clicks."*
 
